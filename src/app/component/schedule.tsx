@@ -189,7 +189,7 @@ const ScheduleTable: React.FC = () => {
       </div>
 
       {/* Schedule Table */}
-      <div id="schedule-table" className="overflow-x-auto bg-white p-2">
+      <div id="schedule-table" className="max-md:overflow-x-auto bg-white p-2">
         <table className="table-auto border-collapse border border-gray-300 w-full text-center">
           <thead>
             <tr>
