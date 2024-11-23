@@ -189,29 +189,29 @@ const ScheduleTable: React.FC = () => {
       </div>
 
       {/* Schedule Table */}
-      <div id="schedule-table" className="bg-white p-2">
+      <div id="schedule-table" className="overflow-x-auto bg-white p-2">
         <table className="table-auto border-collapse border border-gray-300 w-full text-center">
-        <thead>
-          <tr>
-            <th className="border border-gray-300 p-2">Day/Time</th>
-            {hours.map((hour, index) => {
-              // Check for even-indexed hours to merge every two half-hour slots
-              if (index % 2 === 0) {
-                return (
-                  <th
-                    key={hour}
-                    colSpan={2} // Merge the current hour and the next half-hour
-                    className="border border-gray-300 p-2 bg-gray-100"
-                  >
-                    {formatTime(hour)}
-                  </th>
-                );
-              }
-              // Skip rendering for odd-indexed half-hours since they're part of the merged cell
-              return null;
-            })}
-          </tr>
-        </thead>
+          <thead>
+            <tr>
+              <th className="border border-gray-300 p-2">Day/Time</th>
+              {hours.map((hour, index) => {
+                // Check for even-indexed hours to merge every two half-hour slots
+                if (index % 2 === 0) {
+                  return (
+                    <th
+                      key={hour}
+                      colSpan={2} // Merge the current hour and the next half-hour
+                      className="border border-gray-300 p-2 bg-gray-100"
+                    >
+                      {formatTime(hour)}
+                    </th>
+                  );
+                }
+                // Skip rendering for odd-indexed half-hours since they're part of the merged cell
+                return null;
+              })}
+            </tr>
+          </thead>
           <tbody>
             {days.map((day) => (
               <tr key={day}>
@@ -226,9 +226,8 @@ const ScheduleTable: React.FC = () => {
                     <td
                       key={`${day}-${hour}`}
                       colSpan={cellDetails?.colSpan}
-                      className={`relative border border-gray-300 p-2 ${
-                        cellDetails?.bgColor || ""
-                      }`}
+                      className={`relative border border-gray-300 p-2 ${cellDetails?.bgColor || ""
+                        }`}
                       onMouseEnter={() => setHoveredCell({ day, hour })}
                       onMouseLeave={() => setHoveredCell(null)}
                     >
@@ -240,7 +239,7 @@ const ScheduleTable: React.FC = () => {
                           className="absolute top-1 right-1 bg-red-500 text-white text-xs px-2 py-1 rounded"
                           onClick={() => handleDeleteSchedule(day, hour)}
                         >
-                          Delete
+                          x
                         </button>
                       )}
                     </td>
