@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { toPng } from "html-to-image"; // Install using: npm install html-to-image
+import html2canvas from "html2canvas"; // Install using: npm install html2canvas
 
 interface Schedule {
   day: string;
@@ -13,7 +13,7 @@ const ScheduleTable: React.FC = () => {
   const days = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
   const hours = [
     9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13, 13.5, 14, 14.5,
-    15, 15.5, 16, 16.5, 17, 17.5, 18, 18.5, 19, 19.5, 20, 20.5
+    15, 15.5, 16, 16.5, 17, 17.5, 18, 18.5, 19, 19.5, 20, 20.5,
   ];
 
   const dayColors: Record<string, string> = {
@@ -81,18 +81,36 @@ const ScheduleTable: React.FC = () => {
   const handleSaveImage = () => {
     const tableElement = document.getElementById("schedule-table");
     if (tableElement) {
-      toPng(tableElement)
-        .then((dataUrl) => {
+      // Clone the table to ensure styles and content remain intact
+      const clonedElement = tableElement.cloneNode(true) as HTMLElement;
+  
+      // Temporarily append the cloned table off-screen with full width/height
+      clonedElement.style.position = "absolute";
+      clonedElement.style.top = "-9999px";
+      clonedElement.style.width = "1024px"; // Fixed width
+      clonedElement.style.height = "345px"; // Fixed height
+      document.body.appendChild(clonedElement);
+  
+      html2canvas(clonedElement, {
+        scale: 2, // Higher scale for better resolution
+        useCORS: true, // Enables cross-origin support for images
+      })
+        .then((canvas) => {
+          const dataUrl = canvas.toDataURL("image/png");
           const link = document.createElement("a");
           link.href = dataUrl;
           link.download = "schedule-table.png";
           link.click();
+  
+          // Remove the cloned element after rendering
+          document.body.removeChild(clonedElement);
         })
         .catch((error) => {
           console.error("Error saving image:", error);
         });
     }
   };
+  
 
   const handleClearTable = () => {
     setSchedules([]);
@@ -195,19 +213,17 @@ const ScheduleTable: React.FC = () => {
             <tr>
               <th className="border border-gray-300 p-2">Day/Time</th>
               {hours.map((hour, index) => {
-                // Check for even-indexed hours to merge every two half-hour slots
                 if (index % 2 === 0) {
                   return (
                     <th
                       key={hour}
-                      colSpan={2} // Merge the current hour and the next half-hour
+                      colSpan={2}
                       className="border border-gray-300 p-2 bg-gray-100"
                     >
                       {formatTime(hour)}
                     </th>
                   );
                 }
-                // Skip rendering for odd-indexed half-hours since they're part of the merged cell
                 return null;
               })}
             </tr>
@@ -218,8 +234,6 @@ const ScheduleTable: React.FC = () => {
                 <td className="border border-gray-300 p-2">{day}</td>
                 {hours.map((hour) => {
                   const cellDetails = getCellDetails(day, hour);
-
-                  // Skip rendering if cell is covered by a previous colSpan
                   if (cellDetails?.colSpan === 0) return null;
 
                   return (
