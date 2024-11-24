@@ -1,4 +1,5 @@
 # KU SCHEDULE
+https://ku-schedule.vercel.app/
 ## Example Web site
 ![image](https://github.com/user-attachments/assets/5c7eac10-6a38-4c3e-b569-5437313ee947)
 
