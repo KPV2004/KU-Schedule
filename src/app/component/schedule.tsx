@@ -81,17 +81,8 @@ const ScheduleTable: React.FC = () => {
   const handleSaveImage = () => {
     const tableElement = document.getElementById("schedule-table");
     if (tableElement) {
-      // Clone the table to ensure styles and content remain intact
-      const clonedElement = tableElement.cloneNode(true) as HTMLElement;
-  
-      // Temporarily append the cloned table off-screen with full width/height
-      clonedElement.style.position = "absolute";
-      clonedElement.style.top = "-9999px";
-      clonedElement.style.width = "1024px"; // Fixed width
-      clonedElement.style.height = "345px"; // Fixed height
-      document.body.appendChild(clonedElement);
-  
-      html2canvas(clonedElement, {
+      html2canvas(tableElement, {
+        windowWidth: 2560,
         scale: 2, // Higher scale for better resolution
         useCORS: true, // Enables cross-origin support for images
       })
@@ -101,16 +92,12 @@ const ScheduleTable: React.FC = () => {
           link.href = dataUrl;
           link.download = "schedule-table.png";
           link.click();
-  
-          // Remove the cloned element after rendering
-          document.body.removeChild(clonedElement);
         })
         .catch((error) => {
           console.error("Error saving image:", error);
         });
     }
   };
-  
 
   const handleClearTable = () => {
     setSchedules([]);
