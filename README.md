@@ -11,9 +11,19 @@ https://ku-schedule.vercel.app/
 
 ## Getting Started
 
-First, run the development server:
+First, clone project
+```bash
+git clone https://github.com/KPV2004/KU-Scheduler.git
+```
+
+Second, run the development server:
 
 ```bash
+cd KU-Scheduler
+npm install
+# or
+yarn add
+
 npm run dev
 # or
 yarn dev
