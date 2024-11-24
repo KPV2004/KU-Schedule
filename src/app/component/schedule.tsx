@@ -82,7 +82,7 @@ const ScheduleTable: React.FC = () => {
     const tableElement = document.getElementById("schedule-table");
     if (tableElement) {
       html2canvas(tableElement, {
-        windowWidth: 2560,
+        windowWidth: 1280,
         scale: 2, // Higher scale for better resolution
         useCORS: true, // Enables cross-origin support for images
       })
