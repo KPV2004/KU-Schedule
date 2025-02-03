@@ -44,7 +44,7 @@ const ScheduleTable: React.FC = () => {
     if (startTime < endTime && courseCode && courseName) {
       setSchedules([
         ...schedules,
-        { day: inputDay, startHour: startTime, endHour: endTime+1, courseCode, courseName },
+        { day: inputDay, startHour: startTime, endHour: endTime, courseCode, courseName },
       ]);
       setCourseCode("");
       setCourseName("");
