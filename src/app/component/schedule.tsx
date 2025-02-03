@@ -13,7 +13,7 @@ const ScheduleTable: React.FC = () => {
   const days = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
   const hours = [
     9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13, 13.5, 14, 14.5,
-    15, 15.5, 16, 16.5, 17, 17.5, 18, 18.5, 19, 19.5, 20, 20.5,
+    15, 15.5, 16, 16.5, 17, 17.5, 18, 18.5, 19, 19.5, 20
   ];
 
   const dayColors: Record<string, string> = {
@@ -44,7 +44,7 @@ const ScheduleTable: React.FC = () => {
     if (startTime < endTime && courseCode && courseName) {
       setSchedules([
         ...schedules,
-        { day: inputDay, startHour: startTime, endHour: endTime, courseCode, courseName },
+        { day: inputDay, startHour: startTime, endHour: endTime+1, courseCode, courseName },
       ]);
       setCourseCode("");
       setCourseName("");
