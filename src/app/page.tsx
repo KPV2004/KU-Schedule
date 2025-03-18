@@ -49,7 +49,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="w-full h-screen grid grid-cols-12 gap-4 font-noto max-md:grid-cols-1 max-md:grid-rows-auto max-md:bg-green-100 max-md:flex max-md:flex-col ">
+    <div className="w-full bg-white h-screen grid grid-cols-12 gap-4 font-noto max-md:grid-cols-1 max-md:grid-rows-auto max-md:bg-green-100 max-md:flex max-md:flex-col ">
       {/* Menu Bar */}
       <div
         className={`${

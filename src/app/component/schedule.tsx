@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import html2canvas from "html2canvas"; // Install using: npm install html2canvas
+import React, { useEffect, useState } from "react";
+import html2canvas from "html2canvas";
+import axios from 'axios';
 
 interface Schedule {
   day: string;
@@ -9,11 +10,36 @@ interface Schedule {
   courseName: string;
 }
 
+interface Course {
+  courseCode: string;
+  courseName: string;
+  credits: string;
+  foundation: string;
+  group: string;
+  day: string;
+  time: string;
+  instructor: string;
+  faculty: string;
+}
+
 const ScheduleTable: React.FC = () => {
   const days = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+  const mapDay = ["M", "Tu", "W", "Th", "F", "Sat", "Sun"];
+  
+  // Create a mapping between mapDay and days
+  const dayMapping: Record<string, string> = {
+    "M": "MON",
+    "Tu": "TUE",
+    "W": "WED",
+    "Th": "THU",
+    "F": "FRI",
+    "Sat": "SAT",
+    "Sun": "SUN"
+  };
+
   const hours = [
     9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13, 13.5, 14, 14.5,
-    15, 15.5, 16, 16.5, 17, 17.5, 18, 18.5, 19, 19.5, 20
+    15, 15.5, 16, 16.5, 17, 17.5, 18, 18.5, 19, 19.5, 20, 20.5
   ];
 
   const dayColors: Record<string, string> = {
@@ -27,17 +53,62 @@ const ScheduleTable: React.FC = () => {
   };
 
   const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [inputDay, setInputDay] = useState<string>("MON");
   const [startTime, setStartTime] = useState<number>(9);
   const [endTime, setEndTime] = useState<number>(9.5);
   const [courseCode, setCourseCode] = useState<string>("");
   const [courseName, setCourseName] = useState<string>("");
   const [hoveredCell, setHoveredCell] = useState<{ day: string; hour: number } | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [showDropdown, setShowDropdown] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('/api/routes');
+        // Map the day from API format to our format
+        const mappedCourses = response.data.map((course: Course) => ({
+          ...course,
+          day: dayMapping[course.day] || course.day
+        }));
+        setCourses(mappedCourses);
+        setFilteredCourses(mappedCourses);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const filtered = courses.filter(course =>
+      course.courseCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      course.courseName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredCourses(filtered);
+  }, [searchTerm, courses]);
 
   const formatTime = (time: number) => {
     const hour = Math.floor(time);
     const minutes = time % 1 === 0.5 ? "30" : "00";
     return `${hour}:${minutes}`;
+  };
+
+  const handleCourseSelect = (course: Course) => {
+    setCourseCode(course.courseCode);
+    setCourseName(course.courseName);
+    setInputDay(dayMapping[course.day] || course.day);
+    
+    const [start, end] = course.time.split('-');
+    const startHour = parseInt(start.split(':')[0]) + (start.split(':')[1] === '30' ? 0.5 : 0);
+    const endHour = parseInt(end.split(':')[0]) + (end.split(':')[1] === '30' ? 0.5 : 0);
+    
+    setStartTime(startHour);
+    setEndTime(endHour);
+    setSearchTerm('');
+    setShowDropdown(false);
   };
 
   const handleAddSchedule = () => {
@@ -48,6 +119,7 @@ const ScheduleTable: React.FC = () => {
       ]);
       setCourseCode("");
       setCourseName("");
+      setSearchTerm("");
     } else {
       alert("Please fill all fields and ensure the start time is less than the end time!");
     }
@@ -72,7 +144,7 @@ const ScheduleTable: React.FC = () => {
     if (!schedule) return null;
 
     const isStart = hour === schedule.startHour;
-    const colSpan = isStart ? (schedule.endHour - schedule.startHour) * 2 : 0; // Multiply by 2 for half-hour steps
+    const colSpan = isStart ? (schedule.endHour - schedule.startHour) * 2 : 0;
     const bgColor = dayColors[day];
 
     return { content: `${schedule.courseCode}\n${schedule.courseName}`, colSpan, bgColor };
@@ -83,8 +155,8 @@ const ScheduleTable: React.FC = () => {
     if (tableElement) {
       html2canvas(tableElement, {
         windowWidth: 1280,
-        scale: 2, // Higher scale for better resolution
-        useCORS: true, // Enables cross-origin support for images
+        scale: 2,
+        useCORS: true,
       })
         .then((canvas) => {
           const dataUrl = canvas.toDataURL("image/png");
@@ -107,8 +179,41 @@ const ScheduleTable: React.FC = () => {
     <div className="h-full p-4 bg-white">
       <h1 className="text-2xl font-bold mb-4">จัดตารางเรียน</h1>
 
-      {/* Input Section */}
+      {/* Search and Input Section */}
       <div className="mb-4">
+        <div className="relative mb-4">
+          <label className="block mb-2">
+            Search Course:
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setShowDropdown(true);
+              }}
+              placeholder="Enter course code or name..."
+              className="ml-2 border p-1 w-64"
+            />
+          </label>
+          {showDropdown && searchTerm && filteredCourses.length > 0 && (
+            <div className="absolute z-10 bg-white border border-gray-300 w-64 max-h-60 overflow-y-auto">
+              {filteredCourses.map((course) => (
+                <div
+                  key={course.courseCode}
+                  className="p-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => handleCourseSelect(course)}
+                >
+                  <div>{course.courseCode} - {course.courseName}</div>
+                  <div className="text-sm text-gray-600">
+                    {/* {mapDay[days.indexOf(course.day)]} {course.time} */}
+                    {course.day} {course.time}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="flex items-center gap-5">
           <label className="block mb-2">
             Day:
@@ -117,9 +222,9 @@ const ScheduleTable: React.FC = () => {
               onChange={(e) => setInputDay(e.target.value)}
               className="ml-2 border"
             >
-              {days.map((day) => (
+              {days.map((day, index) => (
                 <option key={day} value={day}>
-                  {day}
+                  {mapDay[index]}
                 </option>
               ))}
             </select>
@@ -216,9 +321,9 @@ const ScheduleTable: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {days.map((day) => (
+            {days.map((day, index) => (
               <tr key={day}>
-                <td className="border border-gray-300 p-2">{day}</td>
+                <td className="border border-gray-300 p-2">{mapDay[index]}</td>
                 {hours.map((hour) => {
                   const cellDetails = getCellDetails(day, hour);
                   if (cellDetails?.colSpan === 0) return null;
@@ -227,8 +332,7 @@ const ScheduleTable: React.FC = () => {
                     <td
                       key={`${day}-${hour}`}
                       colSpan={cellDetails?.colSpan}
-                      className={`relative border border-gray-300 p-2 ${cellDetails?.bgColor || ""
-                        }`}
+                      className={`relative border border-gray-300 p-2 ${cellDetails?.bgColor || ""}`}
                       onMouseEnter={() => setHoveredCell({ day, hour })}
                       onMouseLeave={() => setHoveredCell(null)}
                     >
@@ -256,3 +360,7 @@ const ScheduleTable: React.FC = () => {
 };
 
 export default ScheduleTable;
+
+function setError(message: any) {
+  throw new Error("Function not implemented.");
+}
