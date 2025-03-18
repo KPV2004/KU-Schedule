@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error('Error processing request:', error);
     return NextResponse.json(
-      { message: 'Error retrieving courses data', error: error.message },
+      { message: 'Error retrieving courses data'},
       { status: 500 }
     );
   }

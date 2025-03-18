@@ -76,7 +76,7 @@ const ScheduleTable: React.FC = () => {
         setCourses(mappedCourses);
         setFilteredCourses(mappedCourses);
       } catch (err) {
-        setError(err.message);
+        setError("error");
       }
     };
     fetchData();
