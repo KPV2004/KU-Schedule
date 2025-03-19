@@ -62,7 +62,9 @@ const ScheduleTable: React.FC = () => {
   const [courseName, setCourseName] = useState<string>("");
   const [hoveredCell, setHoveredCell] = useState<{ day: string; hour: number } | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const dropdownElement = document.getElementById('drop-down');
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,15 +83,30 @@ const ScheduleTable: React.FC = () => {
     };
     fetchData();
   }, []);
-
   useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const dropdownElement = document.getElementById("dropdown");
+      if (dropdownElement && !dropdownElement.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+  
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  useEffect(() => {
+
     const filtered = courses.filter(course =>
-      course.courseCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.courseName.toLowerCase().includes(searchTerm.toLowerCase())
+      // course.courseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      course.courseCode.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredCourses(filtered);
+    console.log("Filtered courses updated to:", filtered); // แสดงผลหลังจากกรอง
+    setShowDropdown(true)
   }, [searchTerm, courses]);
-
+  
   const formatTime = (time: number) => {
     const hour = Math.floor(time);
     const minutes = time % 1 === 0.5 ? "30" : "00";
@@ -195,8 +212,8 @@ const ScheduleTable: React.FC = () => {
               className="ml-2 border p-1 w-64"
             />
           </label>
-          {showDropdown && searchTerm && filteredCourses.length > 0 && (
-            <div className="absolute z-10 bg-white border border-gray-300 w-64 max-h-60 overflow-y-auto">
+          {/* {showDropdown && searchTerm && filteredCourses.length > 0 && (
+            <div id = "drop-down"className="absolute z-10 bg-white border border-gray-300 w-64 max-h-60 overflow-y-auto">
               {filteredCourses.map((course) => (
                 <div
                   key={course.courseCode}
@@ -205,13 +222,29 @@ const ScheduleTable: React.FC = () => {
                 >
                   <div>{course.courseCode} - {course.courseName}</div>
                   <div className="text-sm text-gray-600">
-                    {/* {mapDay[days.indexOf(course.day)]} {course.time} */}
                     {course.day} {course.time}
                   </div>
                 </div>
               ))}
             </div>
-          )}
+          )} */}
+          {showDropdown && searchTerm && filteredCourses.length > 0 && (
+  <div id="dropdown" className="absolute z-10 bg-white border border-gray-300 w-64 max-h-60 overflow-y-auto">
+    {filteredCourses.map((course) => (
+      <div
+        key={course.courseCode}
+        className="p-2 hover:bg-gray-100 cursor-pointer"
+        onClick={() => handleCourseSelect(course)}
+      >
+        <div>{course.courseCode} - {course.courseName}</div>
+        <div className="text-sm text-gray-600">
+          {course.day} {course.time}
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+          
         </div>
 
         <div className="flex items-center gap-5">
