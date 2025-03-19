@@ -62,7 +62,6 @@ const ScheduleTable: React.FC = () => {
   const [courseName, setCourseName] = useState<string>("");
   const [hoveredCell, setHoveredCell] = useState<{ day: string; hour: number } | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const dropdownElement = document.getElementById('drop-down');
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
 
 
@@ -90,21 +89,20 @@ const ScheduleTable: React.FC = () => {
         setShowDropdown(false);
       }
     };
-  
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
   useEffect(() => {
 
     const filtered = courses.filter(course =>
-      // course.courseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      course.courseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       course.courseCode.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredCourses(filtered);
     console.log("Filtered courses updated to:", filtered); // แสดงผลหลังจากกรอง
-    setShowDropdown(true)
   }, [searchTerm, courses]);
   
   const formatTime = (time: number) => {
